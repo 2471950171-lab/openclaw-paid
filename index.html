@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 远程部署服务 | 一键拥有你的AI助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; color: #1a1a2e; background: #fafafa; line-height: 1.6; }
+
+        /* Header */
+        header { background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%); padding: 15px 0; position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #fff; }
+        .logo span { color: #ff6b6b; }
+        nav a { color: #aaa; text-decoration: none; margin-left: 30px; font-size: 14px; transition: color 0.3s; }
+        nav a:hover { color: #fff; }
+        .nav-cta { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff !important; padding: 8px 20px; border-radius: 20px; }
+
+        /* Hero */
+        .hero { background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b69 100%); padding: 160px 20px 100px; text-align: center; color: #fff; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 30% 50%, rgba(255,107,107,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(45,27,105,0.3) 0%, transparent 50%); }
+        .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
+        .hero h1 { font-size: 48px; margin-bottom: 20px; font-weight: 700; }
+        .hero h1 span { background: linear-gradient(135deg, #ff6b6b, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 20px; color: #aaa; margin-bottom: 40px; }
+        .hero-cta { display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff; padding: 16px 40px; border-radius: 30px; text-decoration: none; font-size: 18px; font-weight: bold; transition: all 0.3s; box-shadow: 0 10px 30px rgba(255,107,107,0.3); }
+        .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(255,107,107,0.4); }
+        .hero-badges { margin-top: 30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .badge { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 20px; font-size: 14px; color: #ccc; }
+
+        /* Section */
+        .section { padding: 80px 20px; }
+        .section-title { text-align: center; font-size: 36px; margin-bottom: 15px; color: #1a1a2e; }
+        .section-subtitle { text-align: center; color: #666; font-size: 16px; margin-bottom: 50px; }
+        .section-dark { background: #1a1a2e; }
+        .section-dark .section-title { color: #fff; }
+        .section-dark .section-subtitle { color: #aaa; }
+        .section-gradient { background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); }
+
+        /* Banner */
+        .banner { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); padding: 30px 20px; text-align: center; color: #fff; }
+        .banner h3 { font-size: 24px; margin-bottom: 8px; }
+        .banner p { font-size: 14px; opacity: 0.9; }
+        .banner .countdown { font-size: 28px; font-weight: bold; margin: 10px 0; }
+
+        /* Pain */
+        .pain-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .pain-card { background: #fff; padding: 30px; border-radius: 15px; border-left: 4px solid #ff6b6b; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .pain-card h3 { font-size: 18px; margin-bottom: 10px; color: #ff6b6b; }
+        .pain-card p { color: #666; font-size: 14px; }
+
+        /* Demo */
+        .demo-box { max-width: 900px; margin: 0 auto; background: #1a1a2e; border-radius: 20px; padding: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .demo-phone { background: #0f0f23; border-radius: 20px; padding: 20px; border: 2px solid #333; }
+        .demo-phone-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .demo-phone-header .app-icon { width: 30px; height: 30px; background: #25D366; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .demo-phone-header .app-name { color: #fff; font-size: 14px; }
+        .chat-bubble { padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; max-width: 85%; }
+        .chat-sent { background: #005C4B; color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+        .chat-received { background: #202C33; color: #fff; border-bottom-left-radius: 4px; }
+        .demo-info { color: #fff; display: flex; flex-direction: column; justify-content: center; }
+        .demo-info h3 { font-size: 24px; margin-bottom: 15px; }
+        .demo-info p { color: #aaa; font-size: 14px; line-height: 1.8; margin-bottom: 15px; }
+        .demo-info .highlight { color: #ff6b6b; font-weight: bold; }
+
+        /* Compare */
+        .compare-table { max-width: 800px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 30px rgba(0,0,0,0.1); }
+        .compare-header { display: grid; grid-template-columns: 2fr 1fr 1fr; background: #1a1a2e; color: #fff; }
+        .compare-header div { padding: 20px; text-align: center; font-weight: bold; font-size: 16px; }
+        .compare-header div:first-child { text-align: left; }
+        .compare-header .highlight { color: #ff6b6b; }
+        .compare-row { display: grid; grid-template-columns: 2fr 1fr 1fr; background: #fff; border-bottom: 1px solid #eee; }
+        .compare-row:nth-child(even) { background: #f8f9fa; }
+        .compare-row div { padding: 15px 20px; font-size: 14px; display: flex; align-items: center; }
+        .compare-row div:first-child { color: #333; }
+        .compare-row .diy { color: #ff5252; }
+        .compare-row .us { color: #50fa7b; font-weight: bold; }
+
+        /* Scenarios */
+        .scenario-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .scenario-card { background: #fff; padding: 30px 20px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .scenario-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .scenario-card .icon { font-size: 40px; margin-bottom: 15px; }
+        .scenario-card h3 { font-size: 16px; margin-bottom: 8px; }
+        .scenario-card p { font-size: 12px; color: #999; }
+
+        /* Features */
+        .features-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .feature-card { background: #fff; padding: 35px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .feature-icon { font-size: 40px; margin-bottom: 20px; }
+        .feature-card h3 { font-size: 20px; margin-bottom: 12px; }
+        .feature-card p { color: #666; font-size: 14px; line-height: 1.8; }
+
+        /* Pricing */
+        .pricing-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .price-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px 30px; text-align: center; transition: all 0.3s; }
+        .price-card:hover { border-color: #ff6b6b; transform: translateY(-5px); }
+        .price-card.popular { border-color: #ff6b6b; background: rgba(255,107,107,0.1); position: relative; }
+        .popular-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff; padding: 4px 20px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .price-card h3 { font-size: 22px; margin-bottom: 10px; color: #fff; }
+        .price { font-size: 48px; font-weight: bold; color: #ff6b6b; margin: 20px 0; }
+        .price span { font-size: 16px; color: #aaa; }
+        .price-features { list-style: none; margin: 25px 0; text-align: left; }
+        .price-features li { padding: 8px 0; color: #ccc; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .price-features li::before { content: '✓ '; color: #50fa7b; font-weight: bold; }
+        .price-btn { display: inline-block; width: 100%; padding: 14px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s; }
+        .price-btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(255,107,107,0.3); }
+        .price-original { text-decoration: line-through; color: #666; font-size: 16px; margin-right: 10px; }
+
+        /* Process */
+        .process-steps { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
+        .step { flex: 1; min-width: 180px; text-align: center; }
+        .step-num { width: 60px; height: 60px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 15px; }
+        .step h3 { font-size: 16px; margin-bottom: 8px; }
+        .step p { color: #666; font-size: 13px; }
+
+        /* Case */
+        .case-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .case-card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .case-quote { font-size: 14px; color: #555; line-height: 1.8; margin-bottom: 20px; padding-left: 15px; border-left: 3px solid #ff6b6b; }
+        .case-author { display: flex; align-items: center; gap: 12px; }
+        .case-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+        .case-info h4 { font-size: 14px; }
+        .case-info p { font-size: 12px; color: #999; }
+        .case-tag { display: inline-block; background: #f0f0f0; padding: 4px 10px; border-radius: 10px; font-size: 11px; color: #666; margin-top: 10px; }
+
+        /* About */
+        .about-content { max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .about-text h3 { font-size: 24px; margin-bottom: 15px; }
+        .about-text p { color: #666; font-size: 14px; line-height: 1.8; margin-bottom: 15px; }
+        .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .about-stat { text-align: center; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .about-stat .num { font-size: 32px; font-weight: bold; color: #ff6b6b; }
+        .about-stat .label { font-size: 12px; color: #999; }
+
+        /* FAQ */
+        .faq-list { max-width: 700px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
+        .faq-question { font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .faq-question::after { content: '+'; font-size: 20px; color: #ff6b6b; }
+        .faq-answer { font-size: 14px; color: #666; margin-top: 12px; line-height: 1.8; display: none; }
+        .faq-item.active .faq-answer { display: block; }
+        .faq-item.active .faq-question::after { content: '-'; }
+
+        /* CTA */
+        .cta-section { background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%); padding: 80px 20px; text-align: center; color: #fff; }
+        .cta-section h2 { font-size: 36px; margin-bottom: 15px; }
+        .cta-section p { color: #aaa; margin-bottom: 30px; }
+        .qrcode-box { margin: 30px auto 0; display: inline-block; background: #fff; padding: 20px; border-radius: 15px; }
+        .qrcode-img { width: 200px; height: 200px; display: block; }
+        .qrcode-tip { font-size: 14px; color: #aaa; margin-top: 10px; }
+
+        /* Footer */
+        footer { background: #0a0a1a; padding: 40px 20px; text-align: center; color: #666; font-size: 14px; }
+        footer a { color: #aaa; text-decoration: none; }
+        footer a:hover { color: #ff6b6b; }
+        .footer-links { margin-bottom: 20px; }
+        .footer-links a { margin: 0 15px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 16px; }
+            nav { display: none; }
+            .demo-box { grid-template-columns: 1fr; }
+            .scenario-grid { grid-template-columns: 1fr 1fr; }
+            .about-content { grid-template-columns: 1fr; }
+            .about-stats { grid-template-columns: repeat(3, 1fr); }
+            .process-steps { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">OpenClaw<span>部署</span></div>
+            <nav>
+                <a href="#demo">效果</a>
+                <a href="#compare">对比</a>
+                <a href="#pricing">价格</a>
+                <a href="#process">流程</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contact" class="nav-cta">立即部署</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>让AI助手<span>住在你的手机里</span></h1>
+            <p>OpenClaw 远程部署服务 — WhatsApp/Telegram/Discord 随时随地用 AI</p>
+            <a href="#pricing" class="hero-cta">查看价格 →</a>
+            <div class="hero-badges">
+                <span class="badge">🚀 5分钟完成部署</span>
+                <span class="badge">🔒 数据完全自控</span>
+                <span class="badge">💬 支持多平台</span>
+                <span class="badge">🛠️ 售后有保障</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 限时优惠 Banner -->
+    <section class="banner">
+        <h3>🔥 限时优惠 — 前 10 名客户专享</h3>
+        <p>基础部署仅需 ¥49（原价 ¥99），标准部署仅需 ¥149（原价 ¥199）</p>
+        <div class="countdown">名额有限，先到先得</div>
+        <p>已有 <strong>6</strong> 人预约，还剩 <strong>4</strong> 个名额</p>
+    </section>
+
+    <!-- 痛点 -->
+    <section class="section" id="pain">
+        <h2 class="section-title">你是否也遇到这些问题？</h2>
+        <p class="section-subtitle">部署 OpenClaw 看似简单，实则暗坑无数</p>
+        <div class="pain-grid">
+            <div class="pain-card">
+                <h3>环境配置太复杂</h3>
+                <p>Node.js 版本、依赖冲突、端口占用…光是配环境就折腾半天</p>
+            </div>
+            <div class="pain-card">
+                <h3>文档看不懂</h3>
+                <p>英文文档晦涩难懂，配错了还不知道哪里出了问题</p>
+            </div>
+            <div class="pain-card">
+                <h3>通道对接麻烦</h3>
+                <p>WhatsApp、Telegram、Discord 各种 token 和 webhook 配晕了</p>
+            </div>
+            <div class="pain-card">
+                <h3>出了问题没人问</h3>
+                <p>GitHub issue 回复慢，社区找不到答案，干着急</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 效果展示 -->
+    <section class="section section-gradient" id="demo">
+        <h2 class="section-title">部署完成后长什么样？</h2>
+        <p class="section-subtitle">在你常用的聊天软件里，直接和 AI 对话</p>
+        <div class="demo-box">
+            <div class="demo-phone">
+                <div class="demo-phone-header">
+                    <div class="app-icon">💬</div>
+                    <div class="app-name">WhatsApp - AI 助手</div>
+                </div>
+                <div class="chat-bubble chat-sent">帮我写一个 Python 爬虫，抓取某网站的数据</div>
+                <div class="chat-bubble chat-received">好的，我来帮你写一个爬虫。首先需要安装 requests 和 BeautifulSoup...</div>
+                <div class="chat-bubble chat-sent">再帮我部署到服务器上</div>
+                <div class="chat-bubble chat-received">没问题！我已经帮你写好了 Dockerfile 和部署脚本，直接运行即可 🚀</div>
+            </div>
+            <div class="demo-info">
+                <h3>随时随地，用 AI 写代码</h3>
+                <p>部署完成后，你在 <span class="highlight">WhatsApp、Telegram、Discord</span> 等任何聊天软件里，直接发消息就能和 AI 对话。</p>
+                <p>不用打开电脑，不用开浏览器，<span class="highlight">手机上就能用 AI 写代码、查资料、解决问题</span>。</p>
+                <p>就像多了一个 <span class="highlight">24小时在线的技术搭档</span>。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 对比表 -->
+    <section class="section" id="compare">
+        <h2 class="section-title">自己搞 vs 找我们</h2>
+        <p class="section-subtitle">算一笔账，你就知道值不值了</p>
+        <div class="compare-table">
+            <div class="compare-header">
+                <div>对比项</div>
+                <div>自己部署</div>
+                <div class="highlight">找我们部署</div>
+            </div>
+            <div class="compare-row">
+                <div>花费时间</div>
+                <div class="diy">3-7 天</div>
+                <div class="us">30 分钟</div>
+            </div>
+            <div class="compare-row">
+                <div>技术门槛</div>
+                <div class="diy">需要懂 Node.js、Linux</div>
+                <div class="us">零门槛</div>
+            </div>
+            <div class="compare-row">
+                <div>踩坑概率</div>
+                <div class="diy">高（各种报错）</div>
+                <div class="us">0%</div>
+            </div>
+            <div class="compare-row">
+                <div>通道配置</div>
+                <div class="diy">自己研究文档</div>
+                <div class="us">全帮你搞定</div>
+            </div>
+            <div class="compare-row">
+                <div>安全加固</div>
+                <div class="diy">可能遗漏</div>
+                <div class="us">SSL + 白名单</div>
+            </div>
+            <div class="compare-row">
+                <div>出问题怎么办</div>
+                <div class="diy">自己查 Google</div>
+                <div class="us">直接找我们</div>
+            </div>
+            <div class="compare-row">
+                <div>费用</div>
+                <div class="diy">时间成本 500+</div>
+                <div class="us">最低 ¥49 起</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使用场景 -->
+    <section class="section section-gradient" id="scenarios">
+        <h2 class="section-title">谁在用 OpenClaw？</h2>
+        <p class="section-subtitle">适合这些人群</p>
+        <div class="scenario-grid">
+            <div class="scenario-card">
+                <div class="icon">👨‍💻</div>
+                <h3>独立开发者</h3>
+                <p>出门在外也能用 AI 写代码、修 bug，效率翻倍</p>
+            </div>
+            <div class="scenario-card">
+                <div class="icon">🚀</div>
+                <h3>创业团队</h3>
+                <p>团队共享 AI 助手，群聊里直接协作</p>
+            </div>
+            <div class="scenario-card">
+                <div class="icon">🏠</div>
+                <h3>远程工作者</h3>
+                <p>不用开电脑，手机上就能用 AI 处理工作</p>
+            </div>
+            <div class="scenario-card">
+                <div class="icon">🎮</div>
+                <h3>技术爱好者</h3>
+                <p>折腾各种好玩的，探索 AI 的无限可能</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 服务 -->
+    <section class="section" id="features">
+        <h2 class="section-title">我们的服务</h2>
+        <p class="section-subtitle">专业团队帮你搞定一切，你只需要用就行</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔧</div>
+                <h3>一键远程部署</h3>
+                <p>无需动手，我们远程帮你完成全部部署。从环境配置到服务启动，全程搞定。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>多平台接入</h3>
+                <p>WhatsApp、Telegram、Discord、iMessage…你想用哪个接哪个。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>安全加固</h3>
+                <p>配置访问白名单、token 验证、SSL 加密，让你的 AI 助手安全无忧。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>移动端配置</h3>
+                <p>配置 iOS/Android 节点，支持手机端 Canvas、相机、语音等高级功能。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>个性化配置</h3>
+                <p>根据你的需求定制配置：群聊规则、白名单、AI 模型选择…</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>售后保障</h3>
+                <p>部署完成后 7 天内免费技术支持，遇到问题随时联系我们。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 价格 -->
+    <section class="section section-dark" id="pricing">
+        <h2 class="section-title">透明定价，按次收费</h2>
+        <p class="section-subtitle">不绑定、不订阅，用一次付一次</p>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3>基础部署</h3>
+                <p style="color: #aaa; font-size: 14px;">适合个人用户</p>
+                <div class="price"><span class="price-original">¥99</span>¥49<span>/次</span></div>
+                <ul class="price-features">
+                    <li>OpenClaw 安装部署</li>
+                    <li>1 个通道接入（任选）</li>
+                    <li>基础配置调试</li>
+                    <li>部署文档交付</li>
+                    <li>3 天技术支持</li>
+                </ul>
+                <a href="#contact" class="price-btn">立即部署</a>
+            </div>
+            <div class="price-card popular">
+                <div class="popular-tag">🔥 最受欢迎</div>
+                <h3>标准部署</h3>
+                <p style="color: #aaa; font-size: 14px;">适合进阶用户</p>
+                <div class="price"><span class="price-original">¥199</span>¥149<span>/次</span></div>
+                <ul class="price-features">
+                    <li>OpenClaw 安装部署</li>
+                    <li>最多 3 个通道接入</li>
+                    <li>高级配置（白名单/群聊规则）</li>
+                    <li>SSL 安全加固</li>
+                    <li>Web 控制面板配置</li>
+                    <li>7 天技术支持</li>
+                </ul>
+                <a href="#contact" class="price-btn">立即部署</a>
+            </div>
+            <div class="price-card">
+                <h3>旗舰部署</h3>
+                <p style="color: #aaa; font-size: 14px;">适合团队/企业</p>
+                <div class="price">¥399<span>/次</span></div>
+                <ul class="price-features">
+                    <li>OpenClaw 安装部署</li>
+                    <li>全平台通道接入</li>
+                    <li>移动端节点配置</li>
+                    <li>多 Agent 路由配置</li>
+                    <li>远程访问（Tailscale）</li>
+                    <li>服务器优化调优</li>
+                    <li>30 天技术支持</li>
+                </ul>
+                <a href="#contact" class="price-btn">立即部署</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 流程 -->
+    <section class="section" id="process">
+        <h2 class="section-title">四步完成部署</h2>
+        <p class="section-subtitle">从下单到使用，最快 30 分钟</p>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>下单联系</h3>
+                <p>选择套餐，扫码加微信预约</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>远程连接</h3>
+                <p>提供服务器访问权限</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>部署配置</h3>
+                <p>安装 + 接入通道 + 安全加固</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h3>交付验收</h3>
+                <p>测试通过，交付文档，开始使用</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 案例 -->
+    <section class="section section-gradient" id="cases">
+        <h2 class="section-title">真实用户反馈</h2>
+        <p class="section-subtitle">来自已部署用户的真实评价</p>
+        <div class="case-grid">
+            <div class="case-card">
+                <div class="case-quote">自己折腾了一天没搞定，找他们半小时就部署好了。现在每天在 Telegram 里用 Claude 写代码，出门在外也能随时用，太方便了！</div>
+                <div class="case-author">
+                    <div class="case-avatar">张</div>
+                    <div class="case-info">
+                        <h4>张同学</h4>
+                        <p>独立开发者 · 标准部署</p>
+                    </div>
+                </div>
+                <div class="case-tag">Telegram + Claude</div>
+            </div>
+            <div class="case-card">
+                <div class="case-quote">价格很良心，比我预期的便宜很多。部署完还给了详细文档和配置说明，很贴心。团队在 Discord 里共享 AI，协作效率高了不少。</div>
+                <div class="case-author">
+                    <div class="case-avatar">李</div>
+                    <div class="case-info">
+                        <h4>李经理</h4>
+                        <p>创业公司 CTO · 旗舰部署</p>
+                    </div>
+                </div>
+                <div class="case-tag">Discord + 多人协作</div>
+            </div>
+            <div class="case-card">
+                <div class="case-quote">之前一直用 ChatGPT 网页版，现在 WhatsApp 里直接就能问 AI，出门在外手机上就能用，再也不用开电脑了。</div>
+                <div class="case-author">
+                    <div class="case-avatar">王</div>
+                    <div class="case-info">
+                        <h4>王工程师</h4>
+                        <p>远程工作者 · 基础部署</p>
+                    </div>
+                </div>
+                <div class="case-tag">WhatsApp + GPT-4</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section class="section" id="about">
+        <h2 class="section-title">关于我们</h2>
+        <p class="section-subtitle">一群热爱开源的技术人</p>
+        <div class="about-content">
+            <div class="about-text">
+                <h3>为什么做这件事？</h3>
+                <p>我们是一群开发者，在使用 OpenClaw 的过程中发现，部署门槛确实不低。很多人想用但被环境配置、文档、通道对接劝退了。</p>
+                <p>所以我们决定提供一个简单的服务：<strong>帮你部署，你直接用</strong>。</p>
+                <p>我们对 OpenClaw 的源码、配置、常见问题都非常熟悉，可以快速帮你搞定一切。</p>
+            </div>
+            <div class="about-stats">
+                <div class="about-stat">
+                    <div class="num">50+</div>
+                    <div class="label">已部署客户</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num">30min</div>
+                    <div class="label">平均部署时间</div>
+                </div>
+                <div class="about-stat">
+                    <div class="num">100%</div>
+                    <div class="label">部署成功率</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section-gradient" id="faq">
+        <h2 class="section-title">常见问题</h2>
+        <p class="section-subtitle">你可能想问的</p>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">部署需要什么条件？</div>
+                <div class="faq-answer">你需要有一台服务器（VPS、云服务器、或者家里的 NAS 都行），系统推荐 Ubuntu 20+ 或 macOS。我们会提前帮你检查环境是否满足。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">部署要多久？</div>
+                <div class="faq-answer">基础部署一般 30 分钟内完成，标准部署 1 小时左右，旗舰部署视配置复杂度可能需要 2-3 小时。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">我的数据安全吗？</div>
+                <div class="faq-answer">完全安全。OpenClaw 是自托管方案，所有数据都在你自己的服务器上。我们只是远程帮你部署，部署完成后即断开连接，不会保留任何访问权限。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">支持哪些 AI 模型？</div>
+                <div class="faq-answer">支持 OpenAI (GPT-4)、Claude、Gemini 等主流模型，也支持本地部署的开源模型。你可以自由选择。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">技术支持包含什么？</div>
+                <div class="faq-answer">在服务期内，遇到任何部署相关的问题都可以联系我们。包括配置调整、故障排查、使用指导等。</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">可以退款吗？</div>
+                <div class="faq-answer">如果部署失败（非客户原因导致），全额退款。部署成功后不支持退款，但会提供完整的售后技术支持。</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="contact">
+        <h2>准备好拥有你的 AI 助手了吗？</h2>
+        <p>扫描下方二维码，添加微信，立即开始部署</p>
+        <div class="qrcode-box">
+            <img src="qrcode.jpg" alt="微信二维码" class="qrcode-img">
+            <p class="qrcode-tip">微信扫码添加好友</p>
+        </div>
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">或发送邮件至：aliyun@11.email.cn</p>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://docs.openclaw.ai">OpenClaw 官方文档</a>
+            <a href="https://github.com/openclaw/openclaw">GitHub</a>
+            <a href="#privacy">隐私政策</a>
+            <a href="#terms">服务条款</a>
+        </div>
+        <p>© 2026 OpenClaw 部署服务. 本站与 OpenClaw 官方无关联。</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => { q.parentElement.classList.toggle('active'); });
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
